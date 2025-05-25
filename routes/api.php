@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\TagController;
+use App\Http\Controllers\Api\VideoController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -41,5 +42,13 @@ Route::controller(TagController::class)->group(function () {
     Route::post('/tag/{tag}', 'update');
     Route::get('/tag/index', 'index');
     Route::delete('/tag/{tag}', 'destroy');
+});
+
+Route::controller(VideoController::class)->group(function () {
+
+    Route::post('/video/create', 'store');
+    Route::post('/video/{video}', 'update');
+    Route::get('/video/index', 'index');
+    Route::delete('/video/{video}', 'destroy');
 });
 
