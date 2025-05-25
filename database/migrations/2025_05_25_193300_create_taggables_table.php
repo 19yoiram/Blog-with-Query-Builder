@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('taggable', function (Blueprint $table) {
+        Schema::create('taggables', function (Blueprint $table) {
             $table->id();
+            $table->morphs('taggable');
+            $table->foreignId('tag_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -22,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('taggable');
+        Schema::dropIfExists('taggables');
     }
 };
