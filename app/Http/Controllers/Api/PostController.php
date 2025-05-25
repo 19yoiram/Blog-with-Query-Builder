@@ -17,6 +17,7 @@ class PostController extends Controller
         //
 
         $posts = Post::with('category')->get();
+
         return response()->json([
             'success' => true,
             'message' => 'success',
@@ -29,6 +30,7 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
+
         $request->validate([
             "name" => "required",
             "description" => "required",
@@ -41,12 +43,17 @@ class PostController extends Controller
             $request->image->move(public_path('/uploads/images/'), $imageName);
         }
 
+
         $post = Post::create([
             "name" => $request->name,
             "description" => $request->description,
             "image" => $imageName,
-            "category_id" => $request->category_id
+            "category_id" => $request->category_id,
+
         ]);
+
+        $tags = $request->tags;
+        $post->tags()->attach($tags);
 
         return response()->json([
             'success' => true,
@@ -69,6 +76,7 @@ class PostController extends Controller
     public function update(Request $request, string $id)
     {
         //
+        // dd($request->tags);
         $post = Post::findOrFail($id);
         $data['image'] = $post->image;
 
@@ -77,6 +85,7 @@ class PostController extends Controller
             "description" => "required",
             "image" => "nullable|mimes:jpg,jpeg,png"
         ]);
+
 
         if ($request->hasFile('image')) {
 
@@ -90,7 +99,10 @@ class PostController extends Controller
             $data['image'] = $imageName;
         }
 
+
         $post->update($data);
+        $tags = $request->tags;
+        $post->tags()->sync($tags);
 
         return response()->json([
             'success' => true,
@@ -105,7 +117,12 @@ class PostController extends Controller
     public function destroy(string $id)
     {
         //
+        $post = Post::findOrFail($id);
+        
+        $post->tags()->detach($post);
         Post::where('id', $id)->delete();
+
+
 
         return response()->json([
             'success' => true,
