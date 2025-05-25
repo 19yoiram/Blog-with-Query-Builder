@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\Category;
+use App\Models\Comment;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
-class CategoryController extends Controller
+class CommentController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,11 +14,11 @@ class CategoryController extends Controller
     public function index()
     {
         //
-        $category = Category::all();
+        $comment = Comment::all();
         return response()->json([
             'success' => true,
             'message' => 'success',
-            'data' => $category,
+            'data' => $comment,
         ]);
     }
 
@@ -28,21 +28,22 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         //
-
         $request->validate([
             "name" => "required",
-            "description" => "required",
+            "comment" => "nullable|string",
 
         ]);
-        $category = Category::create([
+
+        $comment = Comment::create([
             "name" => $request->name,
-            "description" => $request->description,
+            "comment" => $request->comment,
+            "post_id" => $request->post_id,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Category created successfully',
-            'data' => $category,
+            'message' => 'Comment created successfully',
+            'data' => $comment,
         ]);
     }
 
@@ -52,6 +53,8 @@ class CategoryController extends Controller
     public function show(string $id)
     {
         //
+
+
     }
 
     /**
@@ -59,36 +62,35 @@ class CategoryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $category = Category::findOrFail($id);
+        //
+        $comment = Comment::findOrFail($id);
 
         $data = $request->validate([
             "name" => "required",
-            "description" => "required",
+            "comment" => "nullable|string",
 
         ]);
 
-        $category->update($data);
-
+        $comment->update($data);
 
         return response()->json([
             'success' => true,
-            'message' => 'Category updated successfully',
-            'data' => $category,
+            'message' => 'Comment updated successfully',
+            'data' => $comment,
         ]);
     }
-
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        // $category = Category::findOrFail($id);
-        Category::where('id', $id)->delete();
+        //
+        Comment::where('id', $id)->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Category deleted successfully',
+            'message' => 'Comment deleted successfully',
         ]);
     }
 }

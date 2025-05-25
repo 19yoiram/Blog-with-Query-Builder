@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\Category;
+use App\Models\Tag;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
-class CategoryController extends Controller
+class TagController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,11 +14,12 @@ class CategoryController extends Controller
     public function index()
     {
         //
-        $category = Category::all();
+
+        $tag = Tag::all();
         return response()->json([
             'success' => true,
             'message' => 'success',
-            'data' => $category,
+            'data' => $tag,
         ]);
     }
 
@@ -28,21 +29,17 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         //
-
         $request->validate([
-            "name" => "required",
-            "description" => "required",
-
+            'name' => 'nullable|string'
         ]);
-        $category = Category::create([
+        $tag = Tag::create([
             "name" => $request->name,
-            "description" => $request->description,
-        ]);
 
+        ]);
         return response()->json([
             'success' => true,
-            'message' => 'Category created successfully',
-            'data' => $category,
+            'message' => 'Tag created successfully',
+            'data' => $tag,
         ]);
     }
 
@@ -59,36 +56,35 @@ class CategoryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $category = Category::findOrFail($id);
+        //
+
+        $tag = Tag::findOrFail($id);
 
         $data = $request->validate([
-            "name" => "required",
-            "description" => "required",
+            "name" => "nullable|string",
 
         ]);
 
-        $category->update($data);
-
+        $tag->update($data);
 
         return response()->json([
             'success' => true,
-            'message' => 'Category updated successfully',
-            'data' => $category,
+            'message' => 'Tag updated successfully',
+            'data' => $tag,
         ]);
     }
-
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        // $category = Category::findOrFail($id);
-        Category::where('id', $id)->delete();
+        //
+        Tag::where('id', $id)->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Category deleted successfully',
+            'message' => 'Tag deleted successfully',
         ]);
     }
 }

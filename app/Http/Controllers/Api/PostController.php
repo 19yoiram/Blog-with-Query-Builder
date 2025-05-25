@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\File;
 
 class PostController extends Controller
 {
@@ -15,7 +16,7 @@ class PostController extends Controller
     {
         //
 
-        $posts = Post::all();
+        $posts = Post::with('category')->get();
         return response()->json([
             'success' => true,
             'message' => 'success',
@@ -68,6 +69,36 @@ class PostController extends Controller
     public function update(Request $request, string $id)
     {
         //
+        $post = Post::findOrFail($id);
+        $data['image'] = $post->image;
+
+        $data = $request->validate([
+        "name" => "required",
+        "description" => "required",
+        "image" => "nullable|mimes:jpg,jpeg,png"
+        ]);
+
+    if ($request->hasFile('image')) {
+      
+        $oldImagePath = public_path('/uploads/images/' . $post->image);
+        if (File::exists($oldImagePath)) {
+            File::delete($oldImagePath);
+        }
+
+        $imageName = time() . '.' . $request->image->getClientOriginalExtension();
+        $request->image->move(public_path('uploads/images/'), $imageName);
+        $data['image'] = $imageName;
+    }
+
+    $post->update($data);
+
+     return response()->json([
+            'success' => true,
+            'message' => 'Post updated successfully',
+            'data' => $post,
+        ]);
+
+
     }
 
     /**
@@ -76,5 +107,11 @@ class PostController extends Controller
     public function destroy(string $id)
     {
         //
+        Post::where('id', $id)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Post deleted successfully',
+        ]);
     }
 }
