@@ -73,32 +73,30 @@ class PostController extends Controller
         $data['image'] = $post->image;
 
         $data = $request->validate([
-        "name" => "required",
-        "description" => "required",
-        "image" => "nullable|mimes:jpg,jpeg,png"
+            "name" => "required",
+            "description" => "required",
+            "image" => "nullable|mimes:jpg,jpeg,png"
         ]);
 
-    if ($request->hasFile('image')) {
-      
-        $oldImagePath = public_path('/uploads/images/' . $post->image);
-        if (File::exists($oldImagePath)) {
-            File::delete($oldImagePath);
+        if ($request->hasFile('image')) {
+
+            $oldImagePath = public_path('/uploads/images/' . $post->image);
+            if (File::exists($oldImagePath)) {
+                File::delete($oldImagePath);
+            }
+
+            $imageName = time() . '.' . $request->image->getClientOriginalExtension();
+            $request->image->move(public_path('uploads/images/'), $imageName);
+            $data['image'] = $imageName;
         }
 
-        $imageName = time() . '.' . $request->image->getClientOriginalExtension();
-        $request->image->move(public_path('uploads/images/'), $imageName);
-        $data['image'] = $imageName;
-    }
+        $post->update($data);
 
-    $post->update($data);
-
-     return response()->json([
+        return response()->json([
             'success' => true,
             'message' => 'Post updated successfully',
             'data' => $post,
         ]);
-
-
     }
 
     /**

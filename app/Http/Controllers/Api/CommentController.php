@@ -14,7 +14,7 @@ class CommentController extends Controller
     public function index()
     {
         //
-        $comment = Comment::all();
+        $comment = Comment::with('post')->get();
         return response()->json([
             'success' => true,
             'message' => 'success',
