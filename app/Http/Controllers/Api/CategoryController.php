@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 
@@ -15,11 +16,11 @@ class CategoryController extends Controller
     {
         //
         $category = Category::all();
-        return response()->json([
-            'success' => true,
-            'message' => 'success',
-            'data' => $category,
-        ]);
+        return CategoryResource::collection($category);
+
+        // $category = Category::get();
+        // return new CategoryResource($category);
+
     }
 
     /**
@@ -39,11 +40,7 @@ class CategoryController extends Controller
             "description" => $request->description,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Category created successfully',
-            'data' => $category,
-        ]);
+        return new CategoryResource($category);
     }
 
     /**
@@ -69,12 +66,7 @@ class CategoryController extends Controller
 
         $category->update($data);
 
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Category updated successfully',
-            'data' => $category,
-        ]);
+      return new CategoryResource($category);
     }
 
 
@@ -83,12 +75,10 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        // $category = Category::findOrFail($id);
+        $category = Category::findOrFail($id);
+
         Category::where('id', $id)->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Category deleted successfully',
-        ]);
+         return new CategoryResource($category);
     }
 }
