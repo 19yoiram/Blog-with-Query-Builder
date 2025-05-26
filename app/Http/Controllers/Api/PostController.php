@@ -53,7 +53,7 @@ class PostController extends Controller
         ]);
 
         $tags = $request->tags;
-        $post->tags()->attach($tags);
+        $post->morphTags()->attach($tags);
 
         return response()->json([
             'success' => true,
@@ -102,7 +102,7 @@ class PostController extends Controller
 
         $post->update($data);
         $tags = $request->tags;
-        $post->tags()->sync($tags);
+        $post->morphTags()->sync($tags);
 
         return response()->json([
             'success' => true,
@@ -119,7 +119,7 @@ class PostController extends Controller
         //
         $post = Post::findOrFail($id);
         
-        $post->tags()->detach($post);
+        $post->morphTags()->detach();
         Post::where('id', $id)->delete();
 
 

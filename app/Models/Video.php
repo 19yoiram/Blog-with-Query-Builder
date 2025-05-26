@@ -11,4 +11,8 @@ class Video extends Model
         'title',
         'link',
     ];
+
+     public function morphTags(){
+        return $this->morphToMany(Tag::class,'taggable')->withTimestamps();
+    }
 }

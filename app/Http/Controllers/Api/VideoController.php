@@ -38,6 +38,8 @@ class VideoController extends Controller
             "title" => $request->title,
             "link" => $request->link,
         ]);
+          $tags = $request->tags;
+        $video->morphTags()->attach($tags);
 
         return response()->json([
             'success' => true,
@@ -69,6 +71,8 @@ class VideoController extends Controller
         ]);
 
         $video->update($data);
+        $tags = $request->tags;
+        $video->morphTags()->sync($tags);
 
 
         return response()->json([
@@ -84,6 +88,9 @@ class VideoController extends Controller
     public function destroy(string $id)
     {
         //
+         $video = Video::findOrFail($id);
+        $video->morphTags()->detach();
+
         Video::where('id', $id)->delete();
 
         return response()->json([
