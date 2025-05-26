@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\TagResource;
 
 class TagController extends Controller
 {
@@ -16,11 +17,7 @@ class TagController extends Controller
         //
 
         $tag = Tag::all();
-        return response()->json([
-            'success' => true,
-            'message' => 'success',
-            'data' => $tag,
-        ]);
+        return TagResource::collection($tag);
     }
 
     /**
@@ -36,11 +33,7 @@ class TagController extends Controller
             "name" => $request->name,
 
         ]);
-        return response()->json([
-            'success' => true,
-            'message' => 'Tag created successfully',
-            'data' => $tag,
-        ]);
+        return new TagResource($tag);
     }
 
     /**
@@ -67,11 +60,7 @@ class TagController extends Controller
 
         $tag->update($data);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Tag updated successfully',
-            'data' => $tag,
-        ]);
+        return new TagResource($tag);
     }
 
     /**
@@ -80,11 +69,8 @@ class TagController extends Controller
     public function destroy(string $id)
     {
         //
+        $tag = Tag::findOrFail($id);
         Tag::where('id', $id)->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Tag deleted successfully',
-        ]);
+        return new TagResource($tag);
     }
 }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\PostResource;
+use App\Http\Resources\TagResource;
 use Illuminate\Support\Facades\File;
 
 class PostController extends Controller
@@ -16,13 +18,11 @@ class PostController extends Controller
     {
         //
 
-        $posts = Post::with('category')->get();
+        $posts = Post::with(['category', 'morphTags'])->get();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'success',
-            'data' => $posts,
-        ]);
+        //  dd($posts);
+
+        return PostResource::collection($posts);
     }
 
     /**
@@ -55,11 +55,7 @@ class PostController extends Controller
         $tags = $request->tags;
         $post->morphTags()->attach($tags);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Post created successfully',
-            'data' => $post,
-        ]);
+        return new PostResource($post);
     }
 
     /**
@@ -76,7 +72,6 @@ class PostController extends Controller
     public function update(Request $request, string $id)
     {
         //
-        // dd($request->tags);
         $post = Post::findOrFail($id);
         $data['image'] = $post->image;
 
@@ -101,14 +96,12 @@ class PostController extends Controller
 
 
         $post->update($data);
+        
         $tags = $request->tags;
+    
         $post->morphTags()->sync($tags);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Post updated successfully',
-            'data' => $post,
-        ]);
+        
+        return new PostResource($post);
     }
 
     /**
@@ -121,12 +114,7 @@ class PostController extends Controller
         
         $post->morphTags()->detach();
         Post::where('id', $id)->delete();
+        return new PostResource($post);
 
-
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Post deleted successfully',
-        ]);
     }
 }

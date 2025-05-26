@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CommentResource;
 
 class CommentController extends Controller
 {
@@ -15,11 +16,7 @@ class CommentController extends Controller
     {
         //
         $comment = Comment::with('post')->get();
-        return response()->json([
-            'success' => true,
-            'message' => 'success',
-            'data' => $comment,
-        ]);
+        return CommentResource::collection($comment);
     }
 
     /**
@@ -40,11 +37,7 @@ class CommentController extends Controller
             "post_id" => $request->post_id,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Comment created successfully',
-            'data' => $comment,
-        ]);
+        return new CommentResource($comment);
     }
 
     /**
@@ -65,19 +58,19 @@ class CommentController extends Controller
         //
         $comment = Comment::findOrFail($id);
 
-        $data = $request->validate([
+         $request->validate([
             "name" => "required",
             "comment" => "nullable|string",
 
         ]);
-
-        $comment->update($data);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Comment updated successfully',
-            'data' => $comment,
+        
+        $comment->update([
+            'name'=>$request->name,
+            'comment'=>$request->comment,
+            'post_id'=>$request->post_id
         ]);
+
+        return new CommentResource($comment);
     }
 
     /**
@@ -85,12 +78,10 @@ class CommentController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        //$category = Category::findOrFail($id);
+        $comment = Comment::findOrFail($id);
         Comment::where('id', $id)->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Comment deleted successfully',
-        ]);
+        return new CommentResource($comment);
     }
 }

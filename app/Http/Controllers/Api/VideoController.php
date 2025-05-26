@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Video;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\VideoResource;
 
 class VideoController extends Controller
 {
@@ -14,13 +15,8 @@ class VideoController extends Controller
     public function index()
     {
         //
-        $video = Video::all();
-        return response()->json([
-            'success' => true,
-            'message' => 'success',
-            'data' => $video,
-        ]);
-
+        $video = Video::with('morphTags')->get();
+        return VideoResource::collection($video);
     }
 
     /**
@@ -38,14 +34,10 @@ class VideoController extends Controller
             "title" => $request->title,
             "link" => $request->link,
         ]);
-          $tags = $request->tags;
+        $tags = $request->tags;
         $video->morphTags()->attach($tags);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Video created successfully',
-            'data' => $video,
-        ]);
+        return new VideoResource($video);
     }
 
     /**
@@ -62,7 +54,7 @@ class VideoController extends Controller
     public function update(Request $request, string $id)
     {
         //
-         $video = Video::findOrFail($id);
+        $video = Video::findOrFail($id);
 
         $data = $request->validate([
             "title" => "required",
@@ -75,11 +67,7 @@ class VideoController extends Controller
         $video->morphTags()->sync($tags);
 
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Video updated successfully',
-            'data' => $video,
-        ]);
+        return new VideoResource($video);
     }
 
     /**
@@ -88,14 +76,11 @@ class VideoController extends Controller
     public function destroy(string $id)
     {
         //
-         $video = Video::findOrFail($id);
+        $video = Video::findOrFail($id);
         $video->morphTags()->detach();
 
         Video::where('id', $id)->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Video deleted successfully',
-        ]);
+        return new VideoResource($video);
     }
 }
