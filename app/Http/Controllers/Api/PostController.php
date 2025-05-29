@@ -19,9 +19,7 @@ class PostController extends Controller
         //
 
         $posts = Post::with(['category', 'morphTags'])->get();
-
-        //  dd($posts);
-
+        
         return PostResource::collection($posts);
     }
 
