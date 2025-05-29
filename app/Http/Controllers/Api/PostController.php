@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Http\Resources\TagResource;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PostResource;
-use App\Http\Resources\TagResource;
 use Illuminate\Support\Facades\File;
 
 class PostController extends Controller
@@ -18,8 +19,12 @@ class PostController extends Controller
     {
         //
 
-        $posts = Post::with(['category', 'morphTags'])->get();
-
+        // $posts = Post::with(['category', 'morphTags'])->get();
+        $posts = DB::table('posts')
+    ->leftJoin('categories', 'posts.category_id', '=', 'categories.id')
+    ->select('posts.*', 'categories.name as category_name')
+    ->get();
+    
         return PostResource::collection($posts);
     }
 

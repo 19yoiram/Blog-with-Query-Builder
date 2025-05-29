@@ -19,8 +19,8 @@ class PostResource extends JsonResource
             'name' => $this ->name,
             'description' =>$this->description,
             'image' => $this->image,
-            'category name' => $this->category->name,
-            'tag name' => $this->morphTags->pluck('name'),
+            // 'category name' => $this->category->name,
+            //  'tag name' => $this->morphTags->pluck('name'),
             
         ];
     }

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\CategoryResource;
 
 class CategoryController extends Controller
 {
@@ -13,12 +14,10 @@ class CategoryController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        //
-        $category = Category::all();
-        return CategoryResource::collection($category);
-
-    }
+{
+    $category = DB::table('categories')->get();
+    return CategoryResource::collection($category);
+}
 
     /**
      * Store a newly created resource in storage.
