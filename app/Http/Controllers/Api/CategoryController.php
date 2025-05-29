@@ -18,9 +18,6 @@ class CategoryController extends Controller
         $category = Category::all();
         return CategoryResource::collection($category);
 
-        // $category = Category::get();
-        // return new CategoryResource($category);
-
     }
 
     /**
