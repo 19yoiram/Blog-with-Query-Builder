@@ -79,14 +79,13 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        $category = Category::findOrFail($id);
-
+        Category::findOrFail($id);
         Category::where('id', $id)->delete();
 
         //  return new CategoryResource($category);
         return response()->json([
             'success' => true,
             'message' => 'Category deleted successfully',
-        ], 201);    
+        ], 201);
     }
 }
