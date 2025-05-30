@@ -14,10 +14,10 @@ class CategoryController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-{
-    $category = DB::table('categories')->get();
-    return CategoryResource::collection($category);
-}
+    {
+        $category = DB::table('categories')->get();
+        return CategoryResource::collection($category);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -36,7 +36,11 @@ class CategoryController extends Controller
             "description" => $request->description,
         ]);
 
-        return new CategoryResource($category);
+        // return new CategoryResource($category);
+        return response()->json([
+            'success' => true,
+            'message' => 'Category created successfully',
+        ], 201);
     }
 
     /**
@@ -62,7 +66,11 @@ class CategoryController extends Controller
 
         $category->update($data);
 
-      return new CategoryResource($category);
+        //   return new CategoryResource($category);
+        return response()->json([
+            'success' => true,
+            'message' => 'Category updated successfully',
+        ], 201);
     }
 
 
@@ -75,6 +83,10 @@ class CategoryController extends Controller
 
         Category::where('id', $id)->delete();
 
-         return new CategoryResource($category);
+        //  return new CategoryResource($category);
+        return response()->json([
+            'success' => true,
+            'message' => 'Category deleted successfully',
+        ], 201);    
     }
 }

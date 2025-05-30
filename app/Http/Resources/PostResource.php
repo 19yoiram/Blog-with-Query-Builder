@@ -14,14 +14,13 @@ class PostResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
-            'id' => $this->id,
-            'name' => $this ->name,
-            'description' =>$this->description,
-            'image' => $this->image,
-            // 'category name' => $this->category->name,
-            //  'tag name' => $this->morphTags->pluck('name'),
-            
+       return [
+            'id' => $this['id'],  // from grouped array
+            'name' => $this['name'],
+            'description' => $this['description'],
+            'image' => $this['image'],
+            'category_name' => $this['category_name'],
+            'tags' => $this['tag_name'],  // array of tag names
         ];
     }
 }

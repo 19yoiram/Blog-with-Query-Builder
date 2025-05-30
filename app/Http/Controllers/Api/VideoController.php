@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Video;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\VideoResource;
+
 
 class VideoController extends Controller
 {
@@ -15,8 +17,34 @@ class VideoController extends Controller
     public function index()
     {
         //
-        $video = Video::with('morphTags')->get();
-        return VideoResource::collection($video);
+        // $video = Video::with('morphTags')->get();
+        $video = DB::table('videos')
+            ->leftJoin('taggables', function ($join) {
+                $join->on('taggables.taggable_id', '=', 'videos.id')
+                    ->where('taggables.taggable_type', '=', 'App\Models\Video');
+            })
+            ->leftJoin('tags', 'taggables.tag_id', '=', 'tags.id')
+            ->select(
+                'videos.id',
+                'videos.title',
+                'videos.link',
+                'tags.name as tag_name'
+            )
+            ->get();
+
+
+        $grouped = collect($video)->groupBy('id')->map(function ($items) {
+            $first = $items->first();
+            return [
+                'id' => $first->id,
+                'title' => $first->title,
+                'link' => $first->link,
+                'tag_name' => $items->pluck('tag_name')->filter()->unique()->values(),
+            ];
+        })->values();
+
+        return VideoResource::collection($grouped);
+        // return VideoResource::collection($video);
     }
 
     /**
@@ -37,7 +65,10 @@ class VideoController extends Controller
         $tags = $request->tags;
         $video->morphTags()->attach($tags);
 
-        return new VideoResource($video);
+        return response()->json([
+            'success' => true,
+            'message' => 'Video created successfully',
+        ],201);
     }
 
     /**
@@ -66,8 +97,11 @@ class VideoController extends Controller
         $tags = $request->tags;
         $video->morphTags()->sync($tags);
 
-
-        return new VideoResource($video);
+        return response()->json([
+            'success' => true,
+            'message' => 'Video updated successfully',
+        ],201);
+        // return new VideoResource($video);
     }
 
     /**
@@ -81,6 +115,9 @@ class VideoController extends Controller
 
         Video::where('id', $id)->delete();
 
-        return new VideoResource($video);
+        return response()->json([
+            'success' => true,
+            'message' => 'Video deleted successfully',
+        ],201);
     }
 }

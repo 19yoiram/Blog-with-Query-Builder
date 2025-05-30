@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Tag;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use App\Http\Resources\TagResource;
+use App\Http\Controllers\Controller;
 
 class TagController extends Controller
 {
@@ -16,7 +17,7 @@ class TagController extends Controller
     {
         //
 
-        $tag = Tag::all();
+        $tag = DB::table('tags')->get();
         return TagResource::collection($tag);
     }
 

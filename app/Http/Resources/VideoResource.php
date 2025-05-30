@@ -15,10 +15,10 @@ class VideoResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'video title' => $this->title,
-            'video link' => $this->link,
-            'video tag name' => $this->morphTags()->pluck('name'),
+            'id' => $this['id'],
+            'video title' => $this['title'],
+            'video link' => $this['link'],
+            'video tag name' => $this['tag_name'],
         ];
     }
 }

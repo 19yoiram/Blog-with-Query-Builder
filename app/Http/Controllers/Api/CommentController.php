@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Comment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CommentResource;
 
@@ -15,8 +16,31 @@ class CommentController extends Controller
     public function index()
     {
         //
-        $comment = Comment::with('post')->get();
-        return CommentResource::collection($comment);
+        // $comment = Comment::with('post')->get();
+        $rawComments = DB::table('comments')
+            ->leftJoin('posts', 'comments.post_id', '=', 'posts.id')
+            ->select(
+                'comments.id',
+                'comments.name',
+                'comments.comment',
+                'posts.name as post_name'
+            )
+            ->get();
+
+
+        $grouped = collect($rawComments)->groupBy('id')->map(function ($items) {
+            $first = $items->first();
+            return [
+                'id' => $first->id,
+                'name' => $first->name,
+                'comment' => $first->comment,
+                'post_name' => $first->post_name,
+            ];
+        })->values();
+
+        return CommentResource::collection($grouped);
+
+        // return CommentResource::collection($comment);
     }
 
     /**
@@ -36,8 +60,13 @@ class CommentController extends Controller
             "comment" => $request->comment,
             "post_id" => $request->post_id,
         ]);
-
-        return new CommentResource($comment);
+    
+        if(!empty($comment)){
+        return response()->json([
+            'success' => true,
+            'message' => 'Comment created successfully',
+        ],201);
+    }
     }
 
     /**
@@ -70,7 +99,12 @@ class CommentController extends Controller
             'post_id'=>$request->post_id
         ]);
 
-        return new CommentResource($comment);
+        if(!empty($comment)){
+            return response()->json([
+                'success' => true,
+                'message' => 'Comment updated successfully',
+            ],201);
+        }
     }
 
     /**
@@ -78,10 +112,15 @@ class CommentController extends Controller
      */
     public function destroy(string $id)
     {
-        //$category = Category::findOrFail($id);
+       
         $comment = Comment::findOrFail($id);
         Comment::where('id', $id)->delete();
 
-        return new CommentResource($comment);
+       if(!empty($comment)){
+        return response()->json([
+            'success' => true,
+            'message' => 'Comment deleted successfully',
+        ],201);
+    }
     }
 }

@@ -19,14 +19,39 @@ class PostController extends Controller
     {
         //
 
-        // $posts = Post::with(['category', 'morphTags'])->get();
-        $posts = DB::table('posts')
+$rawPosts = DB::table('posts')
     ->leftJoin('categories', 'posts.category_id', '=', 'categories.id')
-    ->select('posts.*', 'categories.name as category_name')
+    ->leftJoin('taggables', function ($join) {
+        $join->on('taggables.taggable_id', '=', 'posts.id')
+            ->where('taggables.taggable_type', '=', 'App\Models\Post');
+    })
+    ->leftJoin('tags', 'taggables.tag_id', '=', 'tags.id')
+    ->select(
+        'posts.id',
+        'posts.name',
+        'posts.description',
+        'posts.image',
+        'categories.name as category_name',
+        'tags.name as tag_name'
+    )
     ->get();
-    
-        return PostResource::collection($posts);
-    }
+
+
+$grouped = collect($rawPosts)->groupBy('id')->map(function ($items) {
+    $first = $items->first();
+    return [
+        'id' => $first->id,
+        'name' => $first->name,
+        'description' => $first->description,
+        'image' => $first->image,
+        'category_name' => $first->category_name,
+        'tag_name' => $items->pluck('tag_name')->filter()->unique()->values(),
+    ];
+})->values();
+
+return PostResource::collection($grouped);
+
+}
 
     /**
      * Store a newly created resource in storage.
@@ -58,7 +83,10 @@ class PostController extends Controller
         $tags = $request->tags;
         $post->morphTags()->attach($tags);
 
-        return new PostResource($post);
+        return response()->json([
+            'success' => true,
+            'message' => 'Post created successfully',
+        ],201);
     }
 
     /**
@@ -99,12 +127,13 @@ class PostController extends Controller
 
 
         $post->update($data);
-        
         $tags = $request->tags;
-    
         $post->morphTags()->sync($tags);
-        
-        return new PostResource($post);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Post updated successfully',
+        ],201);
     }
 
     /**
@@ -114,10 +143,12 @@ class PostController extends Controller
     {
         //
         $post = Post::findOrFail($id);
-        
+
         $post->morphTags()->detach();
         Post::where('id', $id)->delete();
-        return new PostResource($post);
-
+        return response()->json([
+            'success' => true,
+            'message' => 'Post deleted successfully',
+        ],201);
     }
 }
